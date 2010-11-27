@@ -1,0 +1,72 @@
+ASIA - ASDF2 Software Installation Assistant
+============================================
+
+
+ASIA is a trivial Common Lisp projects installer.  It acts like an
+ASDF2 extension and installs the projects without dependencies.
+Dependency analysis is done by ASDF2.  It's released under MIT
+License.
+
+
+Tutorial
+--------
+
+The complete documentation is link:asia.html[*here*].
+
+For default configuration on Debian, in the shell:
+
+----------------------------------------------------------------------
+
+# 1. Download & install ASIA like other ASDF loadable libraries, e.g.,
+$ git clone git://github.com/dochang/asia.git ~/.local/share/common-lisp/source/asia/
+
+# 2. prepare manifest files...
+# You can download a template here, e.g.,
+$ git clone git://github.com/dochang/repo51.git ~/.local/share/repo51/
+
+----------------------------------------------------------------------
+
+Then in the REPL:
+
+----------------------------------------------------------------------
+
+;; 1. Load ASIA
+;; Put it into ~/.sbclrc, ~/.ccl-init.lisp and so on!
+> (asdf:load-system :asia)
+
+;; 2. You can put this into $XDG_CONFIG_HOME/asia.lisp !
+> (cl:pushnew 'asia:sysdef-asia-search asdf:*system-definition-search-functions*)
+
+;; 3. ASDF will install hunchentoot and its dependencies automatically!
+> (asdf:load-system :hunchentoot)
+;...Installing...OK!
+;...All the systems loaded!
+
+----------------------------------------------------------------------
+
+
+Why another installer?
+----------------------
+
+I don't like all existing installers.  That's why I wrote my own one.
+
+My ideal installer *should*:
+
+- just install the project itself.
+- install the project into a userspace directory.
+- work with various VCS backends.
+- work with archive files like tarball.
+- work with a plain, easy-to-edit database format.
+
+Also, *should not*:
+
+- analyse dependency.
+- force user to install an upstream version or a modified version.
+- use a centralized project manifest database.
+- mix its code with manifest data.
+
+
+Support and Mailing lists
+-------------------------
+
+All you need is asia-devel@common-lisp.net !

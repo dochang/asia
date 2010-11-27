@@ -1,0 +1,281 @@
+ASIA Manual
+===========
+
+
+Introduction
+------------
+
+ASIA is ASDF2 Software Installation Assistant.  Unlike its
+competitors, ASIA only installs a project itself without its
+dependencies.  Dependency analysis is done by ASDF2.
+
+ASIA is released under MIT License.
+
+
+Download & Installation
+-----------------------
+
+The source code is at `git://github.com/dochang/asia.git`.  It's a
+regular ASDF loadable libraries, put it into any directory where ASDF
+can load it.
+
+ASIA uses a project manifest database to download projects.  There is
+an "official" version at `git://github.com/dochang/repo51.git`.  By
+default, it should be downloaded at `$XDG_DATA_HOME/repo51/` or
+`C:\repo51\`.
+
+Of cource, you can create you own version, See <<Configuration>> for
+details.
+
+
+Basic Usage
+-----------
+
+`ASIA:SYSDEF-ASIA-SEARCH` is the bridge between ASDF & ASIA.
+
+For example, if you want to install hunchentoot:
+
+----------------------------------------------------------------------
+> (cl:pushnew 'asia:sysdef-asia-search asdf:*system-definition-search-functions*)
+> (asdf:load-system :hunchentoot)
+----------------------------------------------------------------------
+
+Then ASIA will install hunchentoot and all its dependencies.  After
+all the projects installed, they are loaded by ASDF.
+
+If you want to install hunchentoot without its dependencies, use:
+
+----------------------------------------------------------------------
+> (asia:install-project :hunchentoot)
+----------------------------------------------------------------------
+
+To delete hunchentoot, use:
+
+----------------------------------------------------------------------
+> (asia:delete-project :hunchentoot)
+----------------------------------------------------------------------
+
+NOTE: This doesn't delete dependencies.
+
+
+[[Configuration]]
+Configuration
+-------------
+
+ASIA will load the first file found by ASIA:
+
+1. `$XDG_CONFIG_HOME/common-lisp/asia.lisp`
+2. `$XDG_CONFIG_DIRS/common-lisp/asia.lisp`
+3. For Windows, `%APPDATA%/common-lisp/config/asia.lisp`
+4. `$HOME/.config/common-lisp/asia.lisp`
+
+Typically, the content of the config file is:
+
+----------------------------------------------------------------------
+(in-package :asia)
+(pushnew 'sysdef-asia-search *system-definition-search-functions*)
+----------------------------------------------------------------------
+
+
+Project Manifest Location
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`*PROJECT-MANIFEST*` controls where the project manifest is.  It must
+be a pathname.  Default value is `$XDG_DATA_HOME/repo51/` or
+`~/.local/share/repo51/` on *nix, and `C:\repo51\` on Windows.
+
+
+Source Location
+~~~~~~~~~~~~~~~
+
+`*SOURCE-LOCATION*` controls where the downloaded projects is.  It
+must be a pathname or NIL (default).  NIL means the subdirectory
+`source` in `*PROJECT-MANIFEST*`.
+
+Function SOURCE-LOCATION returns the current location.  Do not use
+this variable directly unless you're binding it.
+
+
+Temporary Directory
+~~~~~~~~~~~~~~~~~~~
+
+`*TEMPORARY-DIRECTORY*` is used to store temporary files such as the
+files downloaded by cURL.  It must be a pathname.  Default value is
+`$TMPDIR` or `/tmp/` on *nix and `C:\Temp\` on Windows.
+
+
+FIXME: About the pathnames which have whitespace characters
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Currently all the pathnames used in ASIA must not have whitespace
+characters.  That means you can't use directories like `Documents and
+Settings`.
+
+It's because of Clozure has a "feature" that changes filename to
+`name\\.tar.gz`.  We have to put all the filenames without the quote
+character in `RUN-SHELL-COMMAND`, so that the shell command such as
+Bash can interpret `name\\.tar.gz` correctly.
+
+
+Concepts in ASIA
+~~~~~~~~~~~~~~~~
+
+Before we describe the project manifest database, we must introduce
+some concepts used in ASIA.
+
+Project::
+
+In ASIA, a project does not mean its code, but its meta information.
+A project should be installed into a directory whose name is
+_project-name_.  A project usually has a system file
++_project-name_.asd+ in its top directory.  Currently a project object
+in ASIA is just its name, all other info can be computed from it.
+
+Project Name::
+
+A string or a symbol except NIL.  If it's a symbol, it represents the
+downcase form of its symbol-name.
+
+Pathname Specifier::
+
+A portable form of pathname from ASDF.  You can use pathname specifier
+to tell ASIA where the system pathname is.  A pathname specifier must
+represent a relative pathname.  The function `PATHSPEC` translates a
+pathname specifier to a pathname.  See ASDF manual 5.3.4 for details.
+
+Pathname Location Designator::
+
+A list DSL that indicate a pathname from ASDF.  The function
+`LOCATION` translates a location designator to a pathname.  See ASDF
+manual 7.4 & 8.3 for details.
+
+
+How to create project manifest database
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Although ASIA provides a official database called 'repo51', you can
+even use your own database.
+
+The database is like a key-value filesystem database.  For example,
+the url of a project is in the file +projects/_project-name_/url+ in
+the directory `*PROJECT-MANIFEST*`; also, the project name of a system
+is in the file +systems/_system-name_/project+.  You can easily get
+the absolute pathname using +(MANIFEST-PATHNAME "projects"
+_project-name_ "url")+.
+
+Project Information
+^^^^^^^^^^^^^^^^^^^
+
+In most cases, the only file you must provide for a project is `url`.
+Its value is a url for VCS command or download tool, such as:
+
+- `git://example.com/project.git`
+- `http://example.com/project.tar.gz`
+
+ASIA handles the url according to the following patterns:
+
+[separator="!"]
+|=====================================================================
+!Git                 !`^(git|git\+ssh|ssh\+git)://|/git(/|$)|\.git/?$`
+!SVN                 !`^svn://`
+!Darcs               !`/darcs(/|$)`
+!CVS*                !`^:pserver:`
+!cURL                !`^(https?|ftps?|sftp|file)://`
+|=====================================================================
+
+CVS url has two parts: cvsroot and module name.  ASIA uses a special
+form like `cvsroot#module`.  If `module` is omitted, the project name
+is used, and the sharpsign `#` is optional.  That means, ASIA handles
+`:pserver:cvsroot#module` by using `cvs -d :pserver:cvsroot co
+module`, and handles `:pserver:cvsroot` by using +cvs -d
+:pserver:cvsroot co _project-name_+.
+
+If ASIA cannot determine the backend, the url is considered as a local
+pathname.
+
+System Information
+^^^^^^^^^^^^^^^^^^
+
+Several projects have more than one system files, like cffi and
+postmodern.  Some projects have a system file whose name is different
+from the project's name, like cl-sqlite.  Some projects have a system
+file which is not in the toplevel directory.  We must let ASIA search
+asd files in a different way.
+
+To specify the project name of a system, put the name into the file
++systems/_system-name_/project+ in the directory `*PROJECT-MANIFEST*`,
+e.g., put `cffi` into `systems/cffi-grovel/project`.
+
+To specify the pathname of a system, put the pathname specifier into
+the file +systems/_system-name_/pathname+, e.g., if you want to use
+the uffi wrapper in cffi, put `uffi-compat/uffi.asd` into
+`systems/uffi/pathname` and put `cffi` into `systems/uffi/project`.
+
+Ignoring Projects
+^^^^^^^^^^^^^^^^^
+
+Sometimes you want to manually install a project into another place.
+You can use the file +projects/_project-name_/ignore+ to make ASIA
+ignore it.  The content can be anything, even empty.
+
+ASIA has ignored many internal projects coming with implementations,
+such as `sb-posix`.
+
+
+Advanced Usage
+--------------
+
+
+Custom Installer
+~~~~~~~~~~~~~~~~
+
+Sometimes you need a custom installation method.  You can use the file
++projects/_project-name_/installer.lisp+.  This file should contain a
+lambda expression.  ASIA reads it as a list, then coerce it to a
+closure.  All the symbols in the closure is in a temporary package
+which uses the package COMMON-LISP, ASDF and ASIA.  When it's being
+evaluated, `*DEFAULT-PATHNAME-DEFAULTS*` is bound to
++/_database-dir_/projects/_project-name_/+.
+
+ASIA tries to use `installer.lisp` first.  If it doesn't exist, then
+use `url`.  If `url` doesn't exist too, ASIA raises an error.
+
+
+Quickly install using `INSTALL-PROJECT`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you want to install a project from a different url and you don't
+want to modify the 'url' file temporarily, use the keyword parameter
+`url` of `INSTALL-PROJECT`.  See the documentation of
+`INSTALL-PROJECT`.
+
+
+Index
+-----
+
+Here is a list of all exported symbols from package ASIA, please see
+their documentations for details:
+
+- `pathspec`
+- `location`
+- `*project-manifest*`
+- `*source-location*`
+- `*temporary-directory*`
+- `make-temp-pathname`
+- `manifest-pathname`
+- `source-location`
+- `project-name`
+- `project-directory`
+- `project-installed-p`
+- `install-project`
+- `delete-project`
+- `sysdef-asia-search`
+
+
+Support and mailing lists
+-------------------------
+
+If you have questions, bug reports, feature requests and patches, send
+your email to asia-devel@common-lisp.net.  Please visit:
+
+http://common-lisp.net/cgi-bin/mailman/listinfo/asia-devel
