@@ -126,7 +126,8 @@
                             (delete-package package))))))
                    ((with-project-file (in project-name "url")
                       (let* ((url (read-line in nil nil)))
-                        (and url (make-installer url project)))))))))
+                        (and url (make-installer url project)))))
+                   ((error "Cannot install ~A: url not found.~%" project-name))))))
 
 (defun install-project (project &key url)
   "Installs PROJECT.  If URL is a function, use it to install; if URL
