@@ -219,7 +219,7 @@ You can use the file +projects/_project-name_/ignore+ to make ASIA
 ignore it.  The content can be anything, even empty.
 
 ASIA has ignored many internal projects coming with implementations,
-such as `sb-posix`.
+such as `sb-posix`.  ASDF & ASIA are also ignored by default.
 
 
 Advanced Usage
