@@ -23,6 +23,7 @@ function into ASDF:*SYSTEM-DEFINITION-SEARCH-FUNCTIONS* manually."
   (when system
     (let* ((project (system-project system)))
       (and project
+           (not (project-ignored-p project))
            (or (ignore-errors (install-project project))
                (project-installed-p project))
            (probe-file (system-pathname system project))))))
