@@ -69,4 +69,4 @@ Also, *should not*:
 Support and Mailing lists
 -------------------------
 
-All you need is asia-devel@common-lisp.net !
+All you need is http://common-lisp.net/cgi-bin/mailman/listinfo/asia-devel[asia-devel@common-lisp.net] !
