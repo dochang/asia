@@ -232,7 +232,7 @@ Custom Installer
 Sometimes you need a custom installation method.  You can use the file
 +projects/_project-name_/installer.lisp+.  This file should contain a
 lambda expression.  ASIA reads it as a list, then coerce it to a
-closure.  All the symbols in the closure is in a temporary package
+closure.  All the symbols in the closure are in a temporary package
 which uses the package COMMON-LISP, ASDF and ASIA.  When it's being
 evaluated, `*DEFAULT-PATHNAME-DEFAULTS*` is bound to
 +/_database-dir_/projects/_project-name_/+.
@@ -246,7 +246,7 @@ Quickly install using `INSTALL-PROJECT`
 
 If you want to install a project from a different url and you don't
 want to modify the 'url' file temporarily, use the keyword parameter
-`url` of `INSTALL-PROJECT`.  See the documentation of
+`:URL` of `INSTALL-PROJECT`.  See the documentation of
 `INSTALL-PROJECT`.
 
 
