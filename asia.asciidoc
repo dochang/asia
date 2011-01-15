@@ -145,7 +145,7 @@ pathname specifier to a pathname.  See ASDF manual 5.3.4 for details.
 
 Pathname Location Designator::
 
-A list DSL that indicate a pathname from ASDF.  The function
+A list DSL that indicates a pathname from ASDF.  The function
 `LOCATION` translates a location designator to a pathname.  See ASDF
 manual 7.4 & 8.3 for details.
 
@@ -153,7 +153,7 @@ manual 7.4 & 8.3 for details.
 How to create project manifest database
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Although ASIA provides a official database called 'repo51', you can
+Although ASIA provides an official database called 'repo51', you can
 even use your own database.
 
 The database is like a key-value filesystem database.  For example,
