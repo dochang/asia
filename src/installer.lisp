@@ -71,13 +71,30 @@
     (local-install (first (list-directory tmpdir)) project)))
 
 (defun git-url-p (url)
-  (pregexp-match "^(git|git\\+ssh|ssh\\+git)://|/git(/|$)|\\.git/?$" url))
+  (pregexp-match "(?x:
+    ^(git|git\\+ssh|ssh\\+git)://
+    | /git(/|$)
+    | \\.git/?$
+    | ^[a-z][a-z0-9+.-]*://git\\.
+    | ^([^:/]+@)?git\\..+:
+    )"
+                 url))
 
 (defun svn-url-p (url)
-  (pregexp-match "^svn://" url))
+  (pregexp-match "(?x:
+    ^svn://
+    | /svn(/|$)
+    | ^[a-z][a-z0-9+.-]*://svn\\.
+    )"
+                 url))
 
 (defun darcs-url-p (url)
-  (pregexp-match "/darcs(/|$)" url))
+  (pregexp-match "(?x:
+    /darcs(/|$)
+    | ^[a-z][a-z0-9+.-]*://darcs\\.
+    | ^([^:/]+@)?darcs\\..+:
+    )"
+                 url))
 
 (defun cvs-url-p (url)
   (pregexp-match "^:pserver:" url))

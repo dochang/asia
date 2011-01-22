@@ -174,13 +174,30 @@ Its value is a url for VCS command or download tool, such as:
 
 ASIA handles the url according to the following patterns:
 
-[separator="!"]
+[separator="!",cols=",l"]
 |=====================================================================
-!Git                 !`^(git|git\+ssh|ssh\+git)://|/git(/|$)|\.git/?$`
-!SVN                 !`^svn://`
-!Darcs               !`/darcs(/|$)`
-!CVS*                !`^:pserver:`
-!cURL                !`^(https?|ftps?|sftp|file)://`
+!Git  !
+^(git|git\+ssh|ssh\+git)://
+| /git(/|$)
+| \.git/?$
+| ^[a-z][a-z0-9+.-]*://git\.
+| ^([^:/]+@)?git\..+:
+
+!SVN  !
+^svn://
+| /svn(/|$)
+| ^[a-z][a-z0-9+.-]*://svn\.
+
+!Darcs!
+/darcs(/|$)
+| ^[a-z][a-z0-9+.-]*://darcs\.
+| ^([^:/]+@)?darcs\..+:
+
+!CVS* !
+^:pserver:
+
+!cURL !
+^(https?|ftps?|sftp|file)://
 |=====================================================================
 
 CVS url has two parts: cvsroot and module name.  ASIA uses a special
