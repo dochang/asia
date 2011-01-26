@@ -34,7 +34,7 @@ Then in the REPL:
 ;; Put it into ~/.sbclrc, ~/.ccl-init.lisp and so on!
 > (asdf:load-system :asia)
 
-;; 2. You can put this into $XDG_CONFIG_HOME/asia.lisp !
+;; 2. You can put this into $XDG_CONFIG_HOME/common-lisp/asia.lisp !
 > (cl:pushnew 'asia:sysdef-asia-search asdf:*system-definition-search-functions*)
 
 ;; 3. ASDF will install hunchentoot and its dependencies automatically!
