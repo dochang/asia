@@ -48,7 +48,10 @@ The specifier will use the host and device components from DEFAULTS or
 
 See ASDF manual 5.3.4 for details."
   (if (typep name '(or pathname symbol string))
-      (merge-component-name-type name :type type :defaults defaults)
+      (funcall (if (fboundp 'coerce-pathname)
+                   'coerce-pathname
+                   'asdf::merge-component-name-type)
+               name :type type :defaults defaults)
       (pathspec (pathname name) :type type :defaults defaults)))
 
 (defun location-designator-p (location-designator)

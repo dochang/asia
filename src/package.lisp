@@ -17,7 +17,6 @@
                 :delete-file-if-exists
                 :get-uid
                 :implementation-identifier
-                :merge-component-name-type
                 :resolve-location
                 :*verbose-out*)
   (:import-from :asia-fad-test
